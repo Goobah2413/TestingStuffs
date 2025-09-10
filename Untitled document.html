@@ -1,0 +1,102 @@
+﻿<div id="jar"></div>
+
+
+<style>
+  #jar {
+    width: 300px;
+    height: 400px;
+    margin: auto;
+    position: relative;
+    background: rgba(255, 255, 255, 0.05); 
+    border-radius: 100px 100px 40px 40px;
+    border: 6px solid rgba(0, 0, 0, 0.6);
+    box-shadow: inset 0 0 20px rgba(255,255,255,0.4), 
+                inset 0 0 10px rgba(0,0,0,0.3),
+                0 0 20px rgba(0,0,0,0.4);
+    backdrop-filter: blur(4px);
+    overflow: hidden;
+  }
+
+
+  canvas {
+    border-radius: 100px 100px 40px 40px;
+  }
+</style>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
+<script>
+  const { Engine, Render, Runner, Bodies, Composite, Mouse, MouseConstraint } = Matter;
+
+
+  const jar = document.getElementById("jar");
+
+
+  const engine = Engine.create();
+  const render = Render.create({
+    element: jar,
+    engine: engine,
+    options: {
+      width: 300,
+      height: 400,
+      wireframes: false,
+      background: "transparent"
+    }
+  });
+
+
+  // Jar walls (invisible but keep shapes inside)
+  const walls = [
+    Bodies.rectangle(150, 400, 260, 20, { isStatic: true, render: { visible: false } }), // bottom
+    Bodies.rectangle(0, 200, 20, 360, { isStatic: true, render: { visible: false } }),   // left
+    Bodies.rectangle(300, 200, 20, 360, { isStatic: true, render: { visible: false } }), // right
+    Bodies.rectangle(75, 0, 100, 20, { isStatic: true, render: { visible: false } }),    // top-left
+    Bodies.rectangle(225, 0, 100, 20, { isStatic: true, render: { visible: false } }),   // top-right
+  ];
+  Composite.add(engine.world, walls);
+
+
+  // Helper to make image bodies
+  function createImage(x, y, w, h, imgSrc) {
+    return Bodies.rectangle(x, y, w, h, {
+      restitution: 0.4,
+      friction: 0.3,
+      render: {
+        sprite: {
+          texture: imgSrc,
+          xScale: w / 200,
+          yScale: h / 200
+        }
+      }
+    });
+  }
+
+
+  // Shapes (resized smaller to fit jar)
+  const shapes = [
+    createImage(150, 50, 50, 50, "https://www.telegraph.co.uk/content/dam/health-fitness/2024/10/02/TELEMMGLPICT000396470083_17278801678610_trans_NvBQzQNjv4BqqVzuuqpFlyLIwiB6NTmJwfSVWeZ_vEN7c6bHu2jJnT8.jpeg?imwidth=640"),
+
+
+    createImage(100, 70, 45, 45, "https://cdn.langeek.co/photo/39213/original/run?type=jpeg"),
+    createImage(200, 90, 45, 45, "https://cdn.langeek.co/photo/39213/original/run?type=jpeg"),
+
+
+    createImage(120, 40, 40, 40, "https://media.istockphoto.com/id/1225549108/vector/run-sport-exercise-vector-icon-illustration.jpg?s=612x612&w=0&k=20&c=RKFqwoj4U4mw076yakzLoxFxz5MLm1gQI_mU4RVpzp4="),
+    createImage(180, 60, 40, 40, "https://media.istockphoto.com/id/1225549108/vector/run-sport-exercise-vector-icon-illustration.jpg?s=612x612&w=0&k=20&c=RKFqwoj4U4mw076yakzLoxFxz5MLm1gQI_mU4RVpzp4="),
+    createImage(150, 30, 40, 40, "https://media.istockphoto.com/id/1225549108/vector/run-sport-exercise-vector-icon-illustration.jpg?s=612x612&w=0&k=20&c=RKFqwoj4U4mw076yakzLoxFxz5MLm1gQI_mU4RVpzp4="),
+  ];
+  Composite.add(engine.world, shapes);
+
+
+  // Mouse drag control
+  const mouse = Mouse.create(render.canvas);
+  const mouseConstraint = MouseConstraint.create(engine, {
+    mouse: mouse,
+    constraint: { stiffness: 0.2, render: { visible: false } }
+  });
+  Composite.add(engine.world, mouseConstraint);
+
+
+  Render.run(render);
+  Runner.run(Runner.create(), engine);
+</script>
